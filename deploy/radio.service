@@ -1,0 +1,18 @@
+[Unit]
+Description=Jamal's Radio static site (rootless nginx container on 127.0.0.1:9180)
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+ExecStartPre=-/usr/bin/podman rm -f radio-web
+ExecStart=/usr/bin/podman run --rm --name radio-web \
+  -p 127.0.0.1:9180:80 \
+  -v %h/radio:/usr/share/nginx/html:ro,z \
+  -v %h/radio/deploy/nginx.conf:/etc/nginx/conf.d/default.conf:ro,z \
+  docker.io/library/nginx:1.27-alpine
+ExecStop=/usr/bin/podman stop -t 10 radio-web
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cut">
+  <title>Jamal's Radio — world radio on a globe</title>
+  <meta name="description" content="Spin the globe and listen to live radio stations from anywhere in the world. Free, no ads.">
+  <meta name="author" content="Jamal — jamalsblog.com">
+  <meta name="theme-color" content="#05070d">
+  <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="vendor/maplibre-gl.css">
+  <link rel="stylesheet" href="style.css?v=__V__">
+</head>
+<body>
+  <div id="map" aria-label="Globe of radio stations"></div>
+
+  <header class="topbar">
+    <a class="brand" href="https://jamalsblog.com" target="_blank" rel="noopener" title="jamalsblog.com">
+      <img src="icons/icon.svg" alt="" width="28" height="28">
+      <span class="brand-name" data-site-name>Jamal's Radio</span>
+    </a>
+    <div class="search">
+      <input id="search" type="search" placeholder="Search stations, genres, countries…  ( / )" autocomplete="off" spellcheck="false">
+    </div>
+    <div class="top-actions">
+      <button id="btn-random" class="icon-btn" title="Random station (R)" aria-label="Random station">
+        <svg viewBox="0 0 24 24"><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>
+      </button>
+      <button id="btn-favs" class="icon-btn" title="Favorites" aria-label="Favorites">
+        <svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-9.5-9.3C1.1 8.3 3.3 4.5 7 4.5c2.1 0 3.6 1.2 5 3 1.4-1.8 2.9-3 5-3 3.7 0 5.9 3.8 4.5 7.2C19.5 16.4 12 21 12 21z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <aside id="panel" class="panel" hidden>
+    <div class="panel-head">
+      <h2 id="panel-title">Stations</h2>
+      <button id="panel-close" class="icon-btn small" aria-label="Close">
+        <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+    </div>
+    <ul id="panel-list" class="station-list"></ul>
+  </aside>
+
+  <div id="hint" class="hint">
+    <div id="hint-text">Tuning in to the world…</div>
+  </div>
+
+  <footer id="player" class="player" data-state="idle">
+    <img id="np-logo" class="np-logo" alt="" hidden>
+    <div class="np-logo np-logo-fallback" id="np-logo-fallback">
+      <svg viewBox="0 0 24 24"><path d="M4.9 19.1a10 10 0 0 1 0-14.2M19.1 4.9a10 10 0 0 1 0 14.2M7.8 16.2a6 6 0 0 1 0-8.4M16.2 7.8a6 6 0 0 1 0 8.4"/><circle cx="12" cy="12" r="2"/></svg>
+    </div>
+    <div class="np-meta">
+      <div id="np-name" class="np-name">Pick a glowing dot on the globe</div>
+      <div id="np-sub" class="np-sub">Drag to spin · scroll to zoom</div>
+    </div>
+    <div class="np-controls">
+      <button id="btn-fav" class="icon-btn" aria-label="Add to favorites" disabled>
+        <svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-9.5-9.3C1.1 8.3 3.3 4.5 7 4.5c2.1 0 3.6 1.2 5 3 1.4-1.8 2.9-3 5-3 3.7 0 5.9 3.8 4.5 7.2C19.5 16.4 12 21 12 21z"/></svg>
+      </button>
+      <button id="btn-play" class="play-btn" aria-label="Play" disabled>
+        <svg class="i-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        <svg class="i-pause" viewBox="0 0 24 24"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>
+        <span class="spinner" aria-hidden="true"></span>
+      </button>
+      <input id="volume" class="volume" type="range" min="0" max="1" step="0.01" value="0.8" aria-label="Volume">
+    </div>
+  </footer>
+
+  <audio id="audio" preload="none"></audio>
+
+  <script src="vendor/maplibre-gl.js"></script>
+  <script src="vendor/topojson-client.min.js"></script>
+  <script src="config.js?v=__V__"></script>
+  <script src="app.js?v=__V__"></script>
+</body>
+</html>

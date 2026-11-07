@@ -1,0 +1,7 @@
+[Unit]
+Description=Refresh Jamal's Radio station list (data/stations.json)
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/podman run --rm -v %h/radio:/site:z -w /site \
+  docker.io/library/node:22-alpine node scripts/build-stations.mjs
