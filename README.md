@@ -1,6 +1,6 @@
 # Jamal's Radio
 
-Live at https://radio.jamalsblog.com. Deploy with `./deploy.sh` (see CLAUDE.md → Deployment).
+Live at https://jamalsblog.com (www. and radio. redirect there). Deploy with `./deploy.sh` (see CLAUDE.md → Deployment).
 
 World radio on a 3D globe. Spin the globe, tap a glowing dot and listen. It's a static site with no backend, no build step and no ads.
 

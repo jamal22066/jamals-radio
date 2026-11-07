@@ -10,7 +10,7 @@ import { fileURLToPath } from "node:url";
 const args = process.argv.slice(2);
 const limit = Number(args[args.indexOf("--limit") + 1]) || 10000;
 const httpsOnly = !args.includes("--allow-http");
-const UA = "JamalsRadio/1.0 (+https://radio.jamalsblog.com)";
+const UA = "JamalsRadio/1.0 (+https://jamalsblog.com)";
 const FALLBACK = ["de1.api.radio-browser.info", "de2.api.radio-browser.info", "fi1.api.radio-browser.info", "nl1.api.radio-browser.info"];
 
 async function servers() {

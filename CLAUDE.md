@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-Jamal's Radio (served at https://radio.jamalsblog.com) is a static web app that plays live radio stations picked from a 3D globe. It has no framework, no bundler and no backend: plain `index.html` + `style.css` + `app.js`, with libraries vendored in `vendor/`. It is an original implementation of the same idea as orberadio.com. Do not copy that site's code or branding.
+Jamal's Radio (served at https://jamalsblog.com; www. and radio. 301 there via deploy/nginx.conf) is a static web app that plays live radio stations picked from a 3D globe. It has no framework, no bundler and no backend: plain `index.html` + `style.css` + `app.js`, with libraries vendored in `vendor/`. It is an original implementation of the same idea as orberadio.com. Do not copy that site's code or branding.
 
 ## Commands
 
