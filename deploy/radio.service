@@ -9,6 +9,7 @@ ExecStart=/usr/bin/podman run --rm --name radio-web \
   -p 127.0.0.1:9180:80 \
   -v %h/radio:/usr/share/nginx/html:ro,z \
   -v %h/radio/deploy/nginx.conf:/etc/nginx/conf.d/default.conf:ro,z \
+  -v %h/radio-logs:/var/log/radio:z \
   docker.io/library/nginx:1.27-alpine
 ExecStop=/usr/bin/podman stop -t 10 radio-web
 Restart=always

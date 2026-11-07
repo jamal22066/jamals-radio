@@ -17,4 +17,9 @@ window.SITE_CONFIG = {
 
   // Optional support link shown in the favorites panel footer. Leave "" to hide.
   supportUrl: "",
+
+  // Play stats: the page reports play start / listen time / failure to this same-origin
+  // endpoint, which nginx writes to a log with the visitor's IP (see deploy/nginx.conf, read it with
+  // ./stats.sh, which adds city and ISP). No cookies. Leave "" to turn it off.
+  playStatsUrl: "/api/play",
 };

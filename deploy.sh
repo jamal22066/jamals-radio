@@ -19,10 +19,12 @@ echo "deployed asset version $V"
 rsync -az --ignore-existing data/ "$HOST:radio/data/"
 
 ssh "$HOST" 'set -e
-  mkdir -p ~/.config/systemd/user
-  cp ~/radio/deploy/radio.service ~/radio/deploy/radio-stations.service ~/radio/deploy/radio-stations.timer ~/.config/systemd/user/
+  mkdir -p ~/.config/systemd/user ~/radio-logs
+  cp ~/radio/deploy/radio.service ~/radio/deploy/radio-stations.service ~/radio/deploy/radio-stations.timer \
+     ~/radio/deploy/radio-plays-rotate.service ~/radio/deploy/radio-plays-rotate.timer ~/.config/systemd/user/
   systemctl --user daemon-reload
   systemctl --user enable --now radio-stations.timer >/dev/null
+  systemctl --user enable --now radio-plays-rotate.timer >/dev/null
   systemctl --user enable radio.service >/dev/null
   systemctl --user restart radio.service
   for i in $(seq 1 30); do curl -fs -o /dev/null http://127.0.0.1:9180/ && break; sleep 1; done

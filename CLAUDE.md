@@ -11,6 +11,7 @@ Jamal's Radio (served at https://jamalsblog.com; www. and radio. 301 there via d
 ```bash
 node scripts/build-stations.mjs [--limit N] [--allow-http]  # regenerate data/stations.json from Radio Browser
 python3 -m http.server 8080                                  # serve locally
+./stats.sh [--days 7] [--top 15]                            # who played what (reads the server's play log)
 node --check app.js                                          # quick syntax check
 ```
 
@@ -24,14 +25,17 @@ There is no test suite. To verify UI changes, load the page in a browser (Playwr
 
 - **`config.js`** sets `window.SITE_CONFIG` (name, station limit, `httpsOnly`, cache hours, auto-rotate, support URL). Put all branding and tuning here.
 - **Station loading** in `app.js` tries three sources in order:
-  1. the localStorage cache (`jamalradio:stations:v1`, TTL from `cacheHours`)
+  1. the localStorage cache (`jamalradio:stations:v2`, TTL from `cacheHours`). Bump the key to make returning visitors drop their cached list.
   2. the pre-built `data/stations.json`
   3. the live Radio Browser API (`/json/stations/search`)
+
+  The build script takes the top `--limit` geo-tagged stations, then tops up every country with fewer than `--fill` (default 100) stations using Radio Browser entries that have no coordinates. It places them by a city in the name or state, then the region capital, both from `scripts/places.json` (currently only Pakistan), then a geo-tagged station near the middle of that state or country. The live API fallback in `app.js` doesn't do this.
 
   Each source passes through the same `usable()` filter. Stations use a compact shape: `{id, n, u, f, h, t, c, cc, st, lat, lon, k, b}`. `scripts/build-stations.mjs` and `compact()` in `app.js` must produce the same shape, so keep them in sync.
 - **Radio Browser servers** are discovered via `all.api.radio-browser.info/json/servers`, with a hardcoded fallback list. Playing a station calls `/json/url/{uuid}` to count the click, as the API's etiquette asks.
 - **Map:** MapLibre v5, with `projection: {type: "globe"}` in the inline style. Layers are the NASA GIBS raster, TopoJSON coast and borders, then the `stations-glow` and `stations` circle layers. The feature id equals the station's index in `stations` (`s._i`). The playing station is highlighted through `feature-state`. A `["zoom"]` expression must be the input of a top-level `interpolate`; the `byZoom()` helper handles this.
 - **Clicks** use `queryRenderedFeatures` over a small bbox. One hit plays immediately. Several hits (many stations share city coordinates) open the side panel list.
 - **Player:** a single `<audio>` element. Its state lives in `#player[data-state]` (`idle|loading|playing|paused|error`), and CSS reads that attribute. A 15 s stall timer marks dead streams. HLS stations are skipped because hls.js is not included.
+- **Play stats:** `app.js` sends anonymous beacons (`start` when audio actually plays, a `beat` every 60 s, `stop`, and `fail`) to `CFG.playStatsUrl` (`/api/play`). nginx answers 204 and writes one JSON line per event to `/var/log/radio/plays.log`, including the visitor's IP from `CF-Connecting-IP` (`$remote_addr` is only the tunnel). That path is `~/radio-logs` on the server. `./stats.sh [--days N] [--no-ip]` streams the log over SSH and summarises it with `scripts/play-stats.py`. It adds city, region and ISP from DB-IP Lite databases, which it downloads monthly to `~/.cache/jamalradio-geo` and reads with the dependency-free `scripts/mmdb.py`. Lookups are offline. DB-IP's CC BY 4.0 license requires the attribution line the script prints. `radio-plays-rotate.timer` runs `deploy/rotate-plays.sh` every day at 00:05 UTC. It moves the log to `plays.log.YYYY-MM-DD`, runs `nginx -s reopen` in `radio-web`, and deletes rotated files older than 90 days. `privacy.html`, linked from the map attribution, promises that retention, so keep the two in sync. The `/api/play` location uses `try_files` to reach a named location, because a bare `return` would run before `limit_req`.
 - **Persistence:** favorites and volume are kept in localStorage. Share links use `#station=<uuid>`, and on load the station is selected but not autoplayed.
 - Station data is user-contributed. Render it only with `textContent`, and pass URLs through `safeUrl()`.

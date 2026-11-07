@@ -1,0 +1,6 @@
+[Unit]
+Description=Rotate Jamal's Radio play log and delete entries older than 90 days
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh %h/radio/deploy/rotate-plays.sh

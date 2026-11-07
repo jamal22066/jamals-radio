@@ -13,7 +13,8 @@
     "nl1.api.radio-browser.info",
     "at1.api.radio-browser.info",
   ];
-  const CACHE_KEY = "jamalradio:stations:v1";
+  const CACHE_KEY = "jamalradio:stations:v2"; // bump when the station list changes shape or coverage
+  try { localStorage.removeItem("jamalradio:stations:v1"); } catch { /* storage blocked */ }
   const FAVS_KEY = "jamalradio:favs:v1";
   const VOL_KEY = "jamalradio:volume";
   const STALL_MS = 15000;
@@ -133,6 +134,55 @@
     if (apiBase) fetch(`${apiBase}/json/url/${encodeURIComponent(s.id)}`).catch(() => {});
   }
 
+  // ---- Anonymous play stats --------------------------------------------------------------
+  // Events go to CFG.playStatsUrl as query strings and nginx logs them with the visitor's IP (no cookies):
+  //   start: audio actually began (the <audio> 'playing' event), with ms = time to first sound
+  //   beat:  cumulative seconds listened, every 60 s while playing (so closed tabs still count)
+  //   stop:  final seconds listened, when the visitor stops, switches station or leaves
+  //   fail:  the station never produced sound (error or 15 s stall)
+  // `p` identifies one play attempt and `v` one page load (random, kept only in memory).
+  const VISIT = Math.random().toString(36).slice(2, 10);
+  let listen = null; // { s, p, at, started, since, secs, sentSecs }
+
+  function beacon(e, l, extra = {}) {
+    if (!CFG.playStatsUrl) return;
+    const q = new URLSearchParams({ e, v: VISIT, p: l.p, id: l.s.id, n: l.s.n.slice(0, 80), cc: l.s.cc || "", ...extra });
+    const url = `${CFG.playStatsUrl}?${q}`;
+    try { if (navigator.sendBeacon && navigator.sendBeacon(url)) return; } catch { /* fall through */ }
+    fetch(url, { method: "POST", keepalive: true }).catch(() => {});
+  }
+  const listenedSecs = (l) => Math.round(l.secs + (l.since ? (Date.now() - l.since) / 1000 : 0));
+  function listenBegin(s) {
+    listenEnd();
+    listen = { s, p: Math.random().toString(36).slice(2, 10), at: Date.now(), started: false, since: 0, secs: 0, sentSecs: -1 };
+  }
+  function listenPlaying() {
+    if (!listen || listen.s !== current) return;
+    if (!listen.started) { listen.started = true; beacon("start", listen, { ms: Date.now() - listen.at }); }
+    if (!listen.since) listen.since = Date.now();
+  }
+  function listenPaused() {
+    if (listen?.since) { listen.secs += (Date.now() - listen.since) / 1000; listen.since = 0; }
+  }
+  function listenEnd() {
+    if (!listen) return;
+    listenPaused();
+    if (listen.started) beacon("stop", listen, { sec: listenedSecs(listen) });
+    listen = null;
+  }
+  function listenFail(why) {
+    if (!listen) return;
+    if (listen.started) return listenEnd(); // it played, then dropped: record as a stop
+    beacon("fail", listen, { why });
+    listen = null;
+  }
+  setInterval(() => {
+    if (!listen?.since) return;
+    const sec = listenedSecs(listen);
+    if (sec !== listen.sentSecs) { listen.sentSecs = sec; beacon("beat", listen, { sec }); }
+  }, 60000);
+  addEventListener("pagehide", listenEnd);
+
   // ---------- map ----------
   const map = new maplibregl.Map({
     container: "map",
@@ -160,7 +210,7 @@
   });
   map.addControl(new maplibregl.AttributionControl({
     compact: true,
-    customAttribution: '<a href="https://jamalsblog.com" target="_blank" rel="noopener">by Jamal · jamalsblog.com</a> · Stations <a href="https://www.radio-browser.info" target="_blank" rel="noopener">Radio Browser</a>',
+    customAttribution: '<a href="https://jamalsblog.com" target="_blank" rel="noopener">by Jamal · jamalsblog.com</a> · Stations <a href="https://www.radio-browser.info" target="_blank" rel="noopener">Radio Browser</a> · <a href="privacy.html" target="_blank" rel="noopener">Privacy</a>',
   }), "bottom-right");
 
   async function addBorders() {
@@ -374,13 +424,15 @@
       if (err && err.name === "NotAllowedError") setState("paused", stationSub(s));
       // other errors are surfaced by the 'error' event
     });
-    stallTimer = setTimeout(() => { if (current === s && els.player.dataset.state === "loading") fail(s); }, STALL_MS);
+    stallTimer = setTimeout(() => { if (current === s && els.player.dataset.state === "loading") fail(s, "stall"); }, STALL_MS);
+    listenBegin(s);
     reportClick(s);
   }
 
-  function fail(s) {
+  function fail(s, why = "error") {
     if (current !== s) return;
     clearTimeout(stallTimer);
+    listenFail(why);
     els.audio.removeAttribute("src"); els.audio.load();
     setState("error", "This station isn't responding — try another one");
   }
@@ -388,12 +440,13 @@
   function togglePlay() {
     if (!current) return;
     const st = els.player.dataset.state;
-    if (st === "playing" || st === "loading") { els.audio.pause(); els.audio.removeAttribute("src"); els.audio.load(); clearTimeout(stallTimer); setState("paused", stationSub(current)); }
+    if (st === "playing" || st === "loading") { listenEnd(); els.audio.pause(); els.audio.removeAttribute("src"); els.audio.load(); clearTimeout(stallTimer); setState("paused", stationSub(current)); }
     else startPlayback();
   }
 
-  els.audio.addEventListener("playing", () => { clearTimeout(stallTimer); if (current) setState("playing", stationSub(current)); });
-  els.audio.addEventListener("waiting", () => { if (current && els.player.dataset.state === "playing") setState("loading", "Buffering…"); });
+  els.audio.addEventListener("playing", () => { clearTimeout(stallTimer); if (current) setState("playing", stationSub(current)); listenPlaying(); });
+  els.audio.addEventListener("waiting", () => { listenPaused(); if (current && els.player.dataset.state === "playing") setState("loading", "Buffering…"); });
+  els.audio.addEventListener("pause", listenPaused); // e.g. paused from headphones / OS media controls
   els.audio.addEventListener("error", () => { if (current && els.audio.getAttribute("src")) fail(current); });
   els.logo.addEventListener("error", () => { els.logo.hidden = true; els.logoFallback.hidden = false; });
   els.play.addEventListener("click", togglePlay);
