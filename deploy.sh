@@ -10,7 +10,7 @@ node --check app.js
 # Code and assets. data/ is excluded so the server's daily-refreshed station list isn't clobbered.
 # index.html is sent separately with __V__ replaced by a content hash, so Cloudflare's edge cache
 # (which holds css/js for hours) picks up new versions immediately after each deploy.
-rsync -az --delete --exclude '.git' --exclude 'data/' --exclude 'CLAUDE*.md' --exclude '.gitignore' --exclude 'index.html' ./ "$HOST:radio/"
+rsync -az --delete --exclude '.git' --exclude 'data/' --exclude 'CLAUDE*.md' --exclude '.gitignore' --exclude 'LICENSE' --exclude 'index.html' ./ "$HOST:radio/"
 V=$(cat app.js style.css config.js | sha1sum | cut -c1-10)
 sed "s/__V__/$V/g" index.html | ssh "$HOST" 'cat > radio/index.html.tmp && mv radio/index.html.tmp radio/index.html'
 echo "deployed asset version $V"

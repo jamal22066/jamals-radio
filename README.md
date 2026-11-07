@@ -46,6 +46,10 @@ server {
 }
 ```
 
+## License
+
+MIT. See [LICENSE](LICENSE). The bundled third-party files listed below keep their own licenses.
+
 ## Third-party code and data
 
 - `vendor/maplibre-gl.*`: [MapLibre GL JS](https://github.com/maplibre/maplibre-gl-js) 5.6.0, BSD-3-Clause
