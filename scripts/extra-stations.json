@@ -1,0 +1,66 @@
+{
+  "_comment": "Stations added on top of Radio Browser by build-stations.mjs. Each needs name, url and cc, plus either city (looked up in places.json for that country) or lat/lon. Optional: tags, homepage, favicon, state. Streams are checked at build time and skipped if they are down. A station whose stream URL (ignoring the query string) is already in the Radio Browser list is skipped. Source for the Radio Pakistan entries: https://www.radio.gov.pk/live-streaming (2026-11-10).",
+  "defaults": {
+    "PK-PBC": { "cc": "PK", "c": "Pakistan", "homepage": "https://www.radio.gov.pk/", "favicon": "https://www.radio.gov.pk/favicon.ico", "tags": "public radio, radio pakistan" }
+  },
+  "stations": [
+    { "use": "PK-PBC", "name": "Radio Pakistan Sports & Health Channel (FM 94)", "url": "https://whmsonic.radio.gov.pk:7007/stream?type=http&nocache=12", "city": "Islamabad", "tags": "sports, health, radio pakistan" },
+    { "use": "PK-PBC", "name": "Radio Pakistan Saut-ul-Quran", "url": "https://whmsonic.radio.gov.pk:7002/stream?type=http&nocache=12", "city": "Islamabad", "tags": "quran, religious, radio pakistan" },
+    { "use": "PK-PBC", "name": "FM 101 Islamabad", "url": "https://whmsonic.radio.gov.pk:7008/stream?type=http&nocache=12", "city": "Islamabad" },
+    { "use": "PK-PBC", "name": "Radio Pakistan Planet FM 87.6", "url": "https://whmsonic.radio.gov.pk:7042/stream?type=http&nocache=12", "city": "Islamabad" },
+    { "use": "PK-PBC", "name": "Radio Pakistan Islamabad", "url": "https://whmsonic.radio.gov.pk:7003/stream?type=http&nocache=12", "city": "Islamabad" },
+    { "use": "PK-PBC", "name": "Radio Pakistan News & Current Affairs (NCAC)", "url": "https://whmsonic.radio.gov.pk:7004/stream?type=http&nocache=12", "city": "Islamabad", "tags": "news, current affairs, radio pakistan" },
+    { "use": "PK-PBC", "name": "Radio Pakistan World Service", "url": "https://whmsonic.radio.gov.pk:7005/stream?type=http&nocache=12", "city": "Islamabad" },
+    { "use": "PK-PBC", "name": "Radio Pakistan External Service", "url": "https://whmsonic.radio.gov.pk:7006/stream?type=http&nocache=12", "city": "Islamabad" },
+    { "use": "PK-PBC", "name": "Radio Pakistan Technology Channel", "url": "https://whmsonic.radio.gov.pk:8094/stream?type=http&nocache=12", "city": "Islamabad", "tags": "technology, radio pakistan" },
+    { "use": "PK-PBC", "name": "Radio Pakistan Environment Channel", "url": "https://whmsonic.radio.gov.pk:8102/stream?type=http&nocache=12", "city": "Islamabad", "tags": "environment, radio pakistan" },
+    { "use": "PK-PBC", "name": "Radio Pakistan Health Channel", "url": "https://whmsonic.radio.gov.pk:7000/Health", "city": "Islamabad", "tags": "health, radio pakistan" },
+    { "use": "PK-PBC", "name": "Radio Pakistan Kids Channel", "url": "https://whmsonic.radio.gov.pk:7000/Kids", "city": "Islamabad", "tags": "kids, radio pakistan" },
+
+    { "use": "PK-PBC", "name": "FM 101 Bahawalpur", "url": "https://whmsonic.radio.gov.pk:8020/relay?type=http&nocache=9", "city": "Bahawalpur" },
+    { "use": "PK-PBC", "name": "Radio Pakistan Bahawalpur MW", "url": "https://whmsonic.radio.gov.pk:8092/relay?type=http&nocache=9", "city": "Bahawalpur" },
+    { "use": "PK-PBC", "name": "FM 93 Faisalabad", "url": "https://whmsonic.radio.gov.pk:8022/relay?type=http&nocache=9", "city": "Faisalabad" },
+    { "use": "PK-PBC", "name": "FM 101 Faisalabad", "url": "https://whmsonic.radio.gov.pk:8024/relay?type=http&nocache=9", "city": "Faisalabad" },
+    { "use": "PK-PBC", "name": "FM 93 Lahore", "url": "https://whmsonic.radio.gov.pk:8088/stream?type=http&nocache=4", "city": "Lahore" },
+    { "use": "PK-PBC", "name": "FM 101 Lahore", "url": "https://whmsonic.radio.gov.pk:7000/101lahore", "city": "Lahore" },
+    { "use": "PK-PBC", "name": "Radio Pakistan Lahore MW", "url": "https://whmsonic.radio.gov.pk:8026/relay?type=http&nocache=9", "city": "Lahore" },
+    { "use": "PK-PBC", "name": "FM 93 Mianwali", "url": "https://whmsonic.radio.gov.pk:8028/relay?type=http&nocache=9", "city": "Mianwali" },
+    { "use": "PK-PBC", "name": "FM 93 Multan", "url": "https://whmsonic.radio.gov.pk:7014/stream?type=http&nocache=12", "city": "Multan" },
+    { "use": "PK-PBC", "name": "FM 101 Multan", "url": "https://whmsonic.radio.gov.pk:8032/stream?type=http&nocache=12", "city": "Multan" },
+    { "use": "PK-PBC", "name": "Radio Pakistan Multan MW", "url": "https://whmsonic.radio.gov.pk:8034/stream?type=http&nocache=12", "city": "Multan" },
+    { "use": "PK-PBC", "name": "FM 93 Rawalpindi", "url": "https://whmsonic.radio.gov.pk:8036/relay?type=http&nocache=9", "city": "Rawalpindi" },
+    { "use": "PK-PBC", "name": "FM 101 Sialkot", "url": "https://whmsonic.radio.gov.pk:8038/relay?type=http&nocache=9", "city": "Sialkot" },
+    { "use": "PK-PBC", "name": "FM 101 Sargodha", "url": "https://whmsonic.radio.gov.pk:8040/relay?type=http&nocache=9", "city": "Sargodha" },
+
+    { "use": "PK-PBC", "name": "Radio Pakistan Hyderabad MW 1008 kHz", "url": "https://whmsonic.radio.gov.pk:8042/stream?type=http&nocache=12", "city": "Hyderabad" },
+    { "use": "PK-PBC", "name": "FM 101 Hyderabad", "url": "https://whmsonic.radio.gov.pk:8044/stream?type=http&nocache=12", "city": "Hyderabad" },
+    { "use": "PK-PBC", "name": "FM 101 Karachi", "url": "https://whmsonic.radio.gov.pk:8048/stream?type=http&nocache=12", "city": "Karachi" },
+    { "use": "PK-PBC", "name": "FM 93 Karachi", "url": "https://whmsonic.radio.gov.pk:7022/stream?type=http&nocache=12", "city": "Karachi" },
+    { "use": "PK-PBC", "name": "Radio Pakistan Karachi MW 639", "url": "https://whmsonic.radio.gov.pk:7000/MW639khi?type=http&nocache=9", "city": "Karachi" },
+    { "use": "PK-PBC", "name": "FM 101 Larkana", "url": "https://whmsonic.radio.gov.pk:8050/stream?type=http&nocache=12", "city": "Larkana" },
+    { "use": "PK-PBC", "name": "FM 101 Mithi", "url": "https://whmsonic.radio.gov.pk:8052/stream?type=http&nocache=12", "city": "Mithi" },
+    { "use": "PK-PBC", "name": "FM 101 Khairpur", "url": "https://whmsonic.radio.gov.pk:8054/stream?type=http&nocache=12", "city": "Khairpur" },
+    { "use": "PK-PBC", "name": "FM 101.4 Bhit Shah", "url": "https://whmsonic.radio.gov.pk:8098/stream?type=http&nocache=12", "city": "Bhit Shah" },
+
+    { "use": "PK-PBC", "name": "FM 101 Quetta", "url": "https://whmsonic.radio.gov.pk:8058/stream?type=http&nocache=12", "city": "Quetta" },
+    { "use": "PK-PBC", "name": "Radio Pakistan Quetta MW", "url": "https://whmsonic.radio.gov.pk:8060/relay?type=http&nocache=9", "city": "Quetta" },
+    { "use": "PK-PBC", "name": "Radio Pakistan Khuzdar MW 567", "url": "https://whmsonic.radio.gov.pk:8062/stream?type=http&nocache=12", "city": "Khuzdar" },
+
+    { "use": "PK-PBC", "name": "FM 101 Peshawar", "url": "https://whmsonic.radio.gov.pk:8070/relay?type=http&nocache=9", "city": "Peshawar" },
+    { "use": "PK-PBC", "name": "Radio Pakistan Peshawar MW", "url": "https://whmsonic.radio.gov.pk:8072/relay?type=http&nocache=9", "city": "Peshawar" },
+    { "use": "PK-PBC", "name": "FM 101 Kohat", "url": "https://whmsonic.radio.gov.pk:8068/relay?type=http&nocache=9", "city": "Kohat" },
+    { "use": "PK-PBC", "name": "FM 101 Abbottabad", "url": "https://whmsonic.radio.gov.pk:8064/relay?type=http&nocache=9", "city": "Abbottabad" },
+    { "use": "PK-PBC", "name": "FM 93 Chitral", "url": "https://whmsonic.radio.gov.pk:8066/relay?type=http&nocache=9", "city": "Chitral" },
+    { "use": "PK-PBC", "name": "Radio Pakistan D.I. Khan MW 711", "url": "https://whmsonic.radio.gov.pk:7000/Dikhan?type=http&nocache=9", "city": "Dera Ismail Khan" },
+
+    { "use": "PK-PBC", "name": "FM 101 Mirpur", "url": "https://whmsonic.radio.gov.pk:8078/relay?type=http&nocache=9", "city": "Mirpur", "state": "Azad Kashmir" },
+    { "use": "PK-PBC", "name": "Azad Kashmir Radio Tarar Khal", "url": "https://whmsonic.radio.gov.pk:8076/relay?type=http&nocache=9", "city": "Tarar Khal", "state": "Azad Kashmir" },
+    { "use": "PK-PBC", "name": "FM 93 Muzaffarabad", "url": "https://whmsonic.radio.gov.pk:7000/93muzaffarabad?type=http&nocache=9", "city": "Muzaffarabad", "state": "Azad Kashmir" },
+    { "use": "PK-PBC", "name": "Azad Kashmir Radio Mirpur", "url": "https://whmsonic.radio.gov.pk:8074/?type=http&nocache=9", "city": "Mirpur", "state": "Azad Kashmir" },
+
+    { "use": "PK-PBC", "name": "Radio Pakistan Gilgit MW 1512 kHz", "url": "https://whmsonic.radio.gov.pk:8082/relay?type=http&nocache=9", "city": "Gilgit", "state": "Gilgit-Baltistan" },
+    { "use": "PK-PBC", "name": "FM 93 Gilgit", "url": "https://whmsonic.radio.gov.pk:8090/relay?type=http&nocache=9", "city": "Gilgit", "state": "Gilgit-Baltistan" },
+    { "use": "PK-PBC", "name": "Radio Pakistan Skardu MW 1557", "url": "https://whmsonic.radio.gov.pk:8080/relay?type=http&nocache=9", "city": "Skardu", "state": "Gilgit-Baltistan" },
+    { "use": "PK-PBC", "name": "FM 93 Skardu", "url": "https://whmsonic.radio.gov.pk:8104/relay?type=http&nocache=9", "city": "Skardu", "state": "Gilgit-Baltistan" }
+  ]
+}

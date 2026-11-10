@@ -13,8 +13,8 @@
     "nl1.api.radio-browser.info",
     "at1.api.radio-browser.info",
   ];
-  const CACHE_KEY = "jamalradio:stations:v2"; // bump when the station list changes shape or coverage
-  try { localStorage.removeItem("jamalradio:stations:v1"); } catch { /* storage blocked */ }
+  const CACHE_KEY = "jamalradio:stations:v3"; // bump when the station list changes shape or coverage
+  try { ["v1", "v2"].forEach((v) => localStorage.removeItem("jamalradio:stations:" + v)); } catch { /* storage blocked */ }
   const FAVS_KEY = "jamalradio:favs:v1";
   const VOL_KEY = "jamalradio:volume";
   const STALL_MS = 15000;
@@ -131,7 +131,8 @@
 
   function reportClick(s) {
     // Radio Browser etiquette: count a click when a station is played.
-    if (apiBase) fetch(`${apiBase}/json/url/${encodeURIComponent(s.id)}`).catch(() => {});
+    // Hand-added stations (scripts/extra-stations.json, ids starting "x-") aren't in Radio Browser.
+    if (apiBase && !s.id.startsWith("x-")) fetch(`${apiBase}/json/url/${encodeURIComponent(s.id)}`).catch(() => {});
   }
 
   // ---- Anonymous play stats --------------------------------------------------------------

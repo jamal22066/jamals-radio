@@ -5,10 +5,13 @@
 //   --fill N: countries with fewer than N geo-tagged stations are topped up with stations that have
 //   no coordinates, placed via scripts/places.json (city / region / capital) or near the country's
 //   other stations. 0 disables.
+// Stations listed in scripts/extra-stations.json are added too (after a quick check that each
+// stream is up), for stations that Radio Browser doesn't have.
 // Re-run periodically (cron / CI) — e.g. daily — to keep the list fresh.
 import { readFile, writeFile, mkdir, rename } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { createHash } from "node:crypto";
 
 const args = process.argv.slice(2);
 const limit = Number(args[args.indexOf("--limit") + 1]) || 10000;
@@ -31,6 +34,21 @@ async function servers() {
 const safeUrl = (u) => (typeof u === "string" && /^https?:\/\//i.test(u) ? u : "");
 const norm = (x) => (x || "").trim().toLowerCase();
 const escapeRx = (x) => x.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+// Same stream regardless of cache-busting query strings, trailing slashes or host case.
+const streamKey = (u) => {
+  try { const x = new URL(u); return (x.host + x.pathname.replace(/\/+$/, "")).toLowerCase(); } catch { return String(u).toLowerCase(); }
+};
+
+// Is this stream answering with audio right now? Reads only the response headers, then hangs up.
+async function streamIsUp(url) {
+  const ctl = new AbortController();
+  const timer = setTimeout(() => ctl.abort(), 10000);
+  try {
+    const r = await fetch(url, { headers: { "User-Agent": UA }, signal: ctl.signal });
+    const type = r.headers.get("content-type") || "";
+    return r.ok && /^(audio\/|application\/ogg|application\/octet-stream)/i.test(type) && !/mpegurl/i.test(type);
+  } catch { return false; } finally { clearTimeout(timer); ctl.abort(); }
+}
 
 async function search(extra) {
   const params = new URLSearchParams({ hidebroken: "true", order: "clickcount", reverse: "true", ...extra });
@@ -83,7 +101,7 @@ async function main() {
     if (!n || !u || !Number.isFinite(lat) || !Number.isFinite(lon)) return false;
     if (Math.abs(lat) > 90 || Math.abs(lon) > 180 || (lat === 0 && lon === 0)) return false;
     if (httpsOnly && !/^https:\/\//i.test(u)) return false;
-    const key = n.toLowerCase() + "|" + u;
+    const key = streamKey(u);
     if (seen.has(key)) return false;
     seen.add(key);
     list.push(compact(s, lat, lon));
@@ -93,11 +111,44 @@ async function main() {
   // 1) Stations with real coordinates, most popular first.
   for (const s of await search({ has_geo_info: "true", limit: String(limit) })) add(s, +s.geo_lat, +s.geo_long);
   const geoCount = list.length;
+  const places = JSON.parse(await readFile(join(here, "places.json"), "utf8"));
+  // Radio Browser stations without coordinates: used to fill thin countries (step 3), and to give a
+  // hand-picked extra the same id as its Radio Browser twin, so favorites and share links keep working.
+  const noGeo = await search({ has_geo_info: "false", limit: "100000" });
+  const rbByStream = new Map();
+  for (const s of noGeo) { const k = streamKey(s.url_resolved || s.url); if (!rbByStream.has(k)) rbByStream.set(k, s); }
 
-  // 2) Stations without coordinates, at an approximate location, only for countries with fewer than
+  // 2) Hand-picked extras (scripts/extra-stations.json) that Radio Browser lacks, placed by city.
+  //    Skipped when the stream is already on the map (geo-tagged in Radio Browser) or is down right now.
+  const extras = JSON.parse(await readFile(join(here, "extra-stations.json"), "utf8"));
+  const todo = extras.stations.map((x) => ({ ...(extras.defaults?.[x.use] || {}), ...x }))
+    .filter((x) => !seen.has(streamKey(x.url)));
+  const up = new Array(todo.length);
+  for (let i = 0; i < todo.length; i += 8) {
+    const batch = todo.slice(i, i + 8);
+    (await Promise.all(batch.map((x) => streamIsUp(x.url)))).forEach((ok, j) => (up[i + j] = ok));
+  }
+  let extraAdded = 0, twins = 0;
+  const down = [];
+  todo.forEach((x, i) => {
+    const ll = Number.isFinite(x.lat) ? [x.lat, x.lon] : places[x.cc]?.cities?.[x.city];
+    if (!ll) { console.warn(`extra station "${x.name}": no coordinates for city "${x.city}"`); return; }
+    if (!up[i]) { down.push(x.name); return; }
+    const twin = rbByStream.get(streamKey(x.url));
+    const s = {
+      stationuuid: twin?.stationuuid || "x-" + createHash("sha1").update(x.url).digest("hex").slice(0, 16),
+      name: x.name, url: x.url, favicon: x.favicon || "", homepage: x.homepage || "", tags: x.tags || "",
+      country: x.c || "", countrycode: x.cc, state: x.state || x.city || "", codec: x.codec || "", bitrate: x.bitrate || 0,
+    };
+    if (add(s, ll[0], ll[1])) { extraAdded++; if (twin) twins++; }
+  });
+  console.log(`extra stations: ${extraAdded} added (${twins} keep their Radio Browser id), ` +
+    `${extras.stations.length - todo.length} already on the map, ${down.length} down` +
+    (down.length ? ` (${down.join(", ")})` : ""));
+
+  // 3) Stations without coordinates, at an approximate location, only for countries with fewer than
   //    `fill` stations on the map. Thin countries get filled in without bloating the file.
   if (fill > 0) {
-    const places = JSON.parse(await readFile(join(here, "places.json"), "utf8"));
     const cityRx = {}; // cc -> [[regex, [lat, lon]]], longest name first so "Dera Ismail Khan" beats "Khan"
     for (const [cc, p] of Object.entries(places)) {
       if (cc.startsWith("_")) continue;
@@ -129,7 +180,7 @@ async function main() {
     };
 
     const added = new Map();
-    for (const s of await search({ has_geo_info: "false", limit: "100000" })) {
+    for (const s of noGeo) {
       const cc = s.countrycode;
       if (!cc || (perCountry.get(cc) || 0) >= fill) continue;
       const ll = locate(s);
@@ -139,7 +190,7 @@ async function main() {
       }
     }
     const top = [...added].sort((a, b) => b[1] - a[1]).slice(0, 12).map(([c, n]) => `${c} +${n}`).join(", ");
-    console.log(`placed ${list.length - geoCount} stations without coordinates in ${added.size} countries (${top})`);
+    console.log(`placed ${list.length - geoCount - extraAdded} stations without coordinates in ${added.size} countries (${top})`);
   }
 
   const out = join(here, "..", "data", "stations.json");
