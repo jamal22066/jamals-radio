@@ -135,7 +135,7 @@
     if (apiBase && !s.id.startsWith("x-")) fetch(`${apiBase}/json/url/${encodeURIComponent(s.id)}`).catch(() => {});
   }
 
-  // ---- Anonymous play stats --------------------------------------------------------------
+  // ---- Play stats ------------------------------------------------------------------------
   // Events go to CFG.playStatsUrl as query strings and nginx logs them with the visitor's IP (no cookies):
   //   start: audio actually began (the <audio> 'playing' event), with ms = time to first sound
   //   beat:  cumulative seconds listened, every 60 s while playing (so closed tabs still count)
